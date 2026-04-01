@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import { errorHandler } from './middleware/errorHandler';
 import { env } from './config/env';
 import authRoutes from './modules/auth/auth.routes';
+import userRoutes from './modules/users/user.routes';
 
 const app: Application = express();
 
@@ -30,7 +31,7 @@ app.get('/health', async (_req: Request, res: Response) => {
 
 // API routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/users', userRoutes);
+app.use('/api/users', userRoutes);
 // app.use('/api/records', recordRoutes);
 // app.use('/api/dashboard', dashboardRoutes);
 
