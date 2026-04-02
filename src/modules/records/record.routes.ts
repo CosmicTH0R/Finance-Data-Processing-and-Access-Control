@@ -3,6 +3,7 @@ import { auth } from '../../middleware/auth';
 import { authorize } from '../../middleware/rbac';
 import { validate } from '../../middleware/validate';
 import { createRecordSchema, updateRecordSchema, listRecordsQuerySchema } from './record.schema';
+import { uuidParamSchema } from '../../utils/common.schema';
 import {
   createRecordController,
   listRecordsController,
@@ -33,18 +34,18 @@ router.get('/', validate(listRecordsQuerySchema, 'query'), listRecordsController
  * GET /api/records/:id
  * All authenticated — single record by ID (404 if soft-deleted)
  */
-router.get('/:id', getRecordByIdController);
+router.get('/:id', validate(uuidParamSchema, 'params'), getRecordByIdController);
 
 /**
  * PATCH /api/records/:id
  * Admin only — partial update, validates only provided fields
  */
-router.patch('/:id', authorize('ADMIN'), validate(updateRecordSchema), updateRecordController);
+router.patch('/:id', authorize('ADMIN'), validate(uuidParamSchema, 'params'), validate(updateRecordSchema), updateRecordController);
 
 /**
  * DELETE /api/records/:id
  * Admin only — soft delete (sets isDeleted=true, never hard-deletes)
  */
-router.delete('/:id', authorize('ADMIN'), softDeleteRecordController);
+router.delete('/:id', authorize('ADMIN'), validate(uuidParamSchema, 'params'), softDeleteRecordController);
 
 export default router;
