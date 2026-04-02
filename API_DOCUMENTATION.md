@@ -193,6 +193,21 @@ Paginated list of records with filtering and sorting.
 
 ---
 
+### GET /api/records/export `[Admin]`
+Export all matching records as a downloadable CSV file. Accepts the same filters as `GET /api/records` (no pagination).
+
+**Query params:** `type=INCOME|EXPENSE`, `category` (partial match), `startDate`, `endDate`, `format=csv` (default)
+
+**Response `200`:** `Content-Type: text/csv`
+```
+id,amount,type,category,date,description,userId,userName,userEmail,createdAt,updatedAt
+uuid,5000.00,INCOME,"Salary",2025-11-01T00:00:00.000Z,,uuid,Admin User,admin@test.com,...
+```
+
+**Errors:** `403 FORBIDDEN`
+
+---
+
 ### GET /api/records/:id `[Any auth]`
 Get a single record by UUID. Returns 404 for soft-deleted records.
 

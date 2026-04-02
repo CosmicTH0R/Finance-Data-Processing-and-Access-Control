@@ -154,6 +154,7 @@ After running `npm run db:seed`, the following users are available:
 |---|---|---|---|
 | POST | `/api/records` | Admin | Create a financial record |
 | GET | `/api/records` | Any auth | List records (paginated, filtered, sorted) |
+| GET | `/api/records/export` | Admin | Export filtered records as CSV |
 | GET | `/api/records/:id` | Any auth | Get single record |
 | PATCH | `/api/records/:id` | Admin | Partial update |
 | DELETE | `/api/records/:id` | Admin | Soft delete |
@@ -173,6 +174,12 @@ After running `npm run db:seed`, the following users are available:
 |---|---|---|---|
 | GET | `/health` | Public | Server status + timestamp |
 
+### API Documentation
+| URL | Description |
+|---|---|
+| `http://localhost:3000/api-docs` | Interactive Swagger UI |
+| `http://localhost:3000/api-docs.json` | Raw OpenAPI 3.0 spec (JSON) |
+
 ---
 
 ## RBAC Permission Matrix
@@ -186,6 +193,7 @@ After running `npm run db:seed`, the following users are available:
 | `PATCH /users/:id` | ❌ | ❌ | ✅ |
 | `POST /records` | ❌ | ❌ | ✅ |
 | `GET /records` | ✅ | ✅ | ✅ |
+| `GET /records/export` | ❌ | ❌ | ✅ |
 | `PATCH /records/:id` | ❌ | ❌ | ✅ |
 | `DELETE /records/:id` | ❌ | ❌ | ✅ |
 | `GET /dashboard/summary` | ❌ | ✅ | ✅ |
