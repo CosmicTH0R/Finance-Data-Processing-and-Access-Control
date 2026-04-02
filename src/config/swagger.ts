@@ -1,4 +1,5 @@
 import swaggerJsdoc from 'swagger-jsdoc';
+import { apiPaths } from './swagger.paths';
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -99,8 +100,9 @@ const options: swaggerJsdoc.Options = {
       { name: 'Records', description: 'Financial records CRUD' },
       { name: 'Dashboard', description: 'Aggregation and summary endpoints' },
     ],
+    paths: apiPaths,
   },
-  apis: ['./src/modules/**/*.routes.ts'],
+  apis: [],
 };
 
 export const swaggerSpec = swaggerJsdoc(options);
