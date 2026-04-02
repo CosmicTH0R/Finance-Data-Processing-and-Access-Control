@@ -1,6 +1,6 @@
 import { prisma } from '../../config/database';
 import { AppError } from '../../utils/AppError';
-import type { CreateRecordInput, UpdateRecordInput, ListRecordsQuery } from './record.schema';
+import type { CreateRecordInput, UpdateRecordInput, ListRecordsQuery, ExportRecordsQuery } from './record.schema';
 
 const RECORD_SELECT = {
   id: true,
@@ -126,4 +126,48 @@ export const softDeleteRecord = async (id: string) => {
   });
 
   return deleted;
+};
+
+export const exportRecordsAsCsv = async (query: ExportRecordsQuery): Promise<string> => {
+  const { type, category, startDate, endDate } = query;
+
+  const where = {
+    isDeleted: false,
+    ...(type && { type }),
+    ...(category && { category: { contains: category, mode: 'insensitive' as const } }),
+    ...(startDate || endDate
+      ? {
+          date: {
+            ...(startDate && { gte: new Date(startDate) }),
+            ...(endDate && { lte: new Date(endDate) }),
+          },
+        }
+      : {}),
+  };
+
+  const records = await prisma.financialRecord.findMany({
+    where,
+    select: RECORD_SELECT,
+    orderBy: { date: 'desc' },
+  });
+
+  const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
+
+  const headers = ['id', 'amount', 'type', 'category', 'date', 'description', 'userId', 'userName', 'userEmail', 'createdAt', 'updatedAt'];
+
+  const rows = records.map((r) => [
+    r.id,
+    r.amount.toString(),
+    r.type,
+    escapeCsv(r.category),
+    r.date.toISOString(),
+    escapeCsv(r.description ?? ''),
+    r.userId,
+    escapeCsv(r.user.name),
+    r.user.email,
+    r.createdAt.toISOString(),
+    r.updatedAt.toISOString(),
+  ]);
+
+  return [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
 };

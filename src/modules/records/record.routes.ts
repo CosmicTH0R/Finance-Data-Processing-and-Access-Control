@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { auth } from '../../middleware/auth';
 import { authorize } from '../../middleware/rbac';
 import { validate } from '../../middleware/validate';
-import { createRecordSchema, updateRecordSchema, listRecordsQuerySchema } from './record.schema';
+import { createRecordSchema, updateRecordSchema, listRecordsQuerySchema, exportRecordsQuerySchema } from './record.schema';
 import { uuidParamSchema } from '../../utils/common.schema';
 import {
   createRecordController,
@@ -10,6 +10,7 @@ import {
   getRecordByIdController,
   updateRecordController,
   softDeleteRecordController,
+  exportRecordsController,
 } from './record.controller';
 
 const router = Router();
@@ -29,6 +30,13 @@ router.post('/', authorize('ADMIN'), validate(createRecordSchema), createRecordC
  * ?type=INCOME&category=Salary&startDate=...&endDate=...&page=1&limit=20&sortBy=date&sortOrder=desc
  */
 router.get('/', validate(listRecordsQuerySchema, 'query'), listRecordsController);
+
+/**
+ * GET /api/records/export?format=csv
+ * Admin only — download all matching records as CSV
+ * IMPORTANT: defined before /:id to avoid "export" being matched as an UUID param
+ */
+router.get('/export', authorize('ADMIN'), validate(exportRecordsQuerySchema, 'query'), exportRecordsController);
 
 /**
  * GET /api/records/:id

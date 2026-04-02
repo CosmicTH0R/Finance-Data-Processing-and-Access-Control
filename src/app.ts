@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import { errorHandler } from './middleware/errorHandler';
+import { apiRateLimiter } from './middleware/rateLimiter';
 import { env } from './config/env';
 import authRoutes from './modules/auth/auth.routes';
 import userRoutes from './modules/users/user.routes';
@@ -14,6 +15,7 @@ const app: Application = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(apiRateLimiter);
 
 if (env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
