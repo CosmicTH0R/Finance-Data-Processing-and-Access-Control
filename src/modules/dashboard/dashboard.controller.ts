@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getFinancialSummary, getCategoryBreakdown, getMonthlyTrends } from './dashboard.service';
+import { getFinancialSummary, getCategoryBreakdown, getMonthlyTrends, getRecentActivity } from './dashboard.service';
 import { sendSuccess } from '../../utils/apiResponse';
 
 export const getFinancialSummaryController = async (
@@ -36,6 +36,20 @@ export const getMonthlyTrendsController = async (
   try {
     const months = req.query['months'] ? Number(req.query['months']) : 6;
     const result = await getMonthlyTrends(months);
+    sendSuccess(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getRecentActivityController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const limit = req.query['limit'] ? Number(req.query['limit']) : 10;
+    const result = await getRecentActivity(limit);
     sendSuccess(res, result);
   } catch (error) {
     next(error);

@@ -90,3 +90,28 @@ export const getMonthlyTrends = async (months = 6) => {
     }),
   };
 };
+
+export const getRecentActivity = async (limit = 10) => {
+  // Clamp between 1 and 50 to prevent abuse
+  const clampedLimit = Math.min(Math.max(limit, 1), 50);
+
+  const records = await prisma.financialRecord.findMany({
+    where: { isDeleted: false },
+    orderBy: { date: 'desc' },
+    take: clampedLimit,
+    select: {
+      id: true,
+      amount: true,
+      type: true,
+      category: true,
+      date: true,
+      description: true,
+      createdAt: true,
+      user: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+  });
+
+  return { records };
+};
