@@ -17,35 +17,19 @@ const router = Router();
 // All routes require authentication
 router.use(auth);
 
-/**
- * GET /api/users/me
- * Any authenticated user — returns own profile
- * IMPORTANT: must be defined before /:id to avoid "me" being treated as an id
- */
+// GET /api/users/me — all roles, returns own profile
 router.get('/me', getMeController);
 
-/**
- * GET /api/users
- * Admin only — paginated list with optional role/status filters
- */
+// GET /api/users — Admin only, paginated list with optional role/status filters
 router.get('/', authorize('ADMIN'), validate(listUsersQuerySchema, 'query'), listUsersController);
 
-/**
- * GET /api/users/:id
- * Admin only — get a single user by ID
- */
+// GET /api/users/:id — Admin only, fetch single user by UUID
 router.get('/:id', authorize('ADMIN'), validate(uuidParamSchema, 'params'), getUserByIdController);
 
-/**
- * PATCH /api/users/:id
- * Admin only — update role, status, or name
- */
+// PATCH /api/users/:id — Admin only, update name/role/status
 router.patch('/:id', authorize('ADMIN'), validate(uuidParamSchema, 'params'), validate(updateUserSchema), updateUserController);
 
-/**
- * DELETE /api/users/:id
- * Admin only — soft deactivate (sets status=INACTIVE); cannot deactivate self
- */
+// DELETE /api/users/:id — Admin only, soft-deactivate (status → INACTIVE), cannot self-deactivate
 router.delete('/:id', authorize('ADMIN'), validate(uuidParamSchema, 'params'), deactivateUserController);
 
 export default router;

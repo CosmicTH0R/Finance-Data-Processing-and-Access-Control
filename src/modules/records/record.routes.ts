@@ -18,42 +18,22 @@ const router = Router();
 // All routes require authentication
 router.use(auth);
 
-/**
- * POST /api/records
- * Admin only — create a new financial record linked to the authenticated user
- */
+// POST /api/records — Admin only, create a financial record
 router.post('/', authorize('ADMIN'), validate(createRecordSchema), createRecordController);
 
-/**
- * GET /api/records
- * All authenticated — paginated list with optional filters
- * ?type=INCOME&category=Salary&startDate=...&endDate=...&page=1&limit=20&sortBy=date&sortOrder=desc
- */
+// GET /api/records — all authenticated, paginated list with filters (type, category, date range, sort)
 router.get('/', validate(listRecordsQuerySchema, 'query'), listRecordsController);
 
-/**
- * GET /api/records/export?format=csv
- * Admin only — download all matching records as CSV
- * IMPORTANT: defined before /:id to avoid "export" being matched as an UUID param
- */
+// GET /api/records/export — Admin only, download filtered records as CSV
 router.get('/export', authorize('ADMIN'), validate(exportRecordsQuerySchema, 'query'), exportRecordsController);
 
-/**
- * GET /api/records/:id
- * All authenticated — single record by ID (404 if soft-deleted)
- */
+// GET /api/records/:id — all authenticated, fetch single record by UUID
 router.get('/:id', validate(uuidParamSchema, 'params'), getRecordByIdController);
 
-/**
- * PATCH /api/records/:id
- * Admin only — partial update, validates only provided fields
- */
+// PATCH /api/records/:id — Admin only, partial update (amount, type, category, date, description)
 router.patch('/:id', authorize('ADMIN'), validate(uuidParamSchema, 'params'), validate(updateRecordSchema), updateRecordController);
 
-/**
- * DELETE /api/records/:id
- * Admin only — soft delete (sets isDeleted=true, never hard-deletes)
- */
+// DELETE /api/records/:id — Admin only, soft delete (isDeleted → true, hidden from all queries)
 router.delete('/:id', authorize('ADMIN'), validate(uuidParamSchema, 'params'), softDeleteRecordController);
 
 export default router;
