@@ -1,0 +1,338 @@
+### Finance Dashboard — VS Code REST Client Test Scenarios
+### Requires the "REST Client" VS Code extension (humao.rest-client)
+###
+### USAGE:
+###   1. Start server: npm run dev
+###   2. Run seed:     npm run prisma:seed
+###   3. Click "Send Request" above any request block
+###
+### WORKFLOW: Run "Login as Admin" first, copy the token into @adminToken below.
+###           Repeat for analyst and viewer as needed.
+
+@baseUrl = http://localhost:3000
+@adminToken    = PASTE_ADMIN_TOKEN_HERE
+@analystToken  = PASTE_ANALYST_TOKEN_HERE
+@viewerToken   = PASTE_VIEWER_TOKEN_HERE
+
+# After running the "Create Record" request, paste the returned id here:
+@recordId = PASTE_RECORD_ID_HERE
+
+# After running "List Users", paste a non-admin user id here:
+@userId = PASTE_USER_ID_HERE
+
+###############################################################################
+# HEALTH
+###############################################################################
+
+### Health Check
+GET {{baseUrl}}/health
+
+###############################################################################
+# AUTH
+###############################################################################
+
+### Register New User
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "newuser@example.com",
+  "password": "Test@1234",
+  "name": "New User"
+}
+
+###
+
+### Login as Admin
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@test.com",
+  "password": "Admin@123"
+}
+
+###
+
+### Login as Analyst
+# @name loginAnalyst
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "analyst@test.com",
+  "password": "Analyst@123"
+}
+
+###
+
+### Login as Viewer
+# @name loginViewer
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "viewer@test.com",
+  "password": "Viewer@123"
+}
+
+###
+
+### Login — Invalid Credentials (expect 401)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "nobody@test.com",
+  "password": "WrongPass1"
+}
+
+###############################################################################
+# USERS
+###############################################################################
+
+### Get My Profile (any role)
+GET {{baseUrl}}/api/users/me
+Authorization: Bearer {{viewerToken}}
+
+###
+
+### List All Users [Admin only]
+GET {{baseUrl}}/api/users
+Authorization: Bearer {{adminToken}}
+
+###
+
+### List Users — Filter by role
+GET {{baseUrl}}/api/users?role=ANALYST&page=1&limit=10
+Authorization: Bearer {{adminToken}}
+
+###
+
+### List Users — Filter by status
+GET {{baseUrl}}/api/users?status=ACTIVE
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Get User by ID [Admin only]
+GET {{baseUrl}}/api/users/{{userId}}
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Update User Role [Admin only]
+PATCH {{baseUrl}}/api/users/{{userId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "role": "ANALYST"
+}
+
+###
+
+### Update User Status [Admin only]
+PATCH {{baseUrl}}/api/users/{{userId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "INACTIVE"
+}
+
+###
+
+### Deactivate User [Admin only] (soft delete — sets status=INACTIVE)
+DELETE {{baseUrl}}/api/users/{{userId}}
+Authorization: Bearer {{adminToken}}
+
+###
+
+### List Users — Analyst should get 403
+GET {{baseUrl}}/api/users
+Authorization: Bearer {{analystToken}}
+
+###############################################################################
+# FINANCIAL RECORDS
+###############################################################################
+
+### Create Record [Admin only]
+POST {{baseUrl}}/api/records
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "amount": 5000.00,
+  "type": "INCOME",
+  "category": "Salary",
+  "date": "2025-08-01T00:00:00.000Z",
+  "description": "August salary"
+}
+
+###
+
+### Create Expense Record [Admin only]
+POST {{baseUrl}}/api/records
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "amount": 1200.50,
+  "type": "EXPENSE",
+  "category": "Rent",
+  "date": "2025-08-01T00:00:00.000Z",
+  "description": "August rent"
+}
+
+###
+
+### Create Record — Viewer should get 403
+POST {{baseUrl}}/api/records
+Authorization: Bearer {{viewerToken}}
+Content-Type: application/json
+
+{
+  "amount": 100,
+  "type": "INCOME",
+  "category": "Other",
+  "date": "2025-08-01T00:00:00.000Z"
+}
+
+###
+
+### List Records [Any auth] — defaults
+GET {{baseUrl}}/api/records
+Authorization: Bearer {{viewerToken}}
+
+###
+
+### List Records — Filter by type
+GET {{baseUrl}}/api/records?type=INCOME&sortBy=amount&sortOrder=desc
+Authorization: Bearer {{viewerToken}}
+
+###
+
+### List Records — Filter by category (partial match)
+GET {{baseUrl}}/api/records?category=sal
+Authorization: Bearer {{viewerToken}}
+
+###
+
+### List Records — Filter by date range
+GET {{baseUrl}}/api/records?startDate=2025-01-01T00:00:00.000Z&endDate=2025-12-31T23:59:59.999Z
+Authorization: Bearer {{viewerToken}}
+
+###
+
+### List Records — Pagination
+GET {{baseUrl}}/api/records?page=1&limit=5
+Authorization: Bearer {{viewerToken}}
+
+###
+
+### Get Record by ID
+GET {{baseUrl}}/api/records/{{recordId}}
+Authorization: Bearer {{viewerToken}}
+
+###
+
+### Update Record [Admin only]
+PATCH {{baseUrl}}/api/records/{{recordId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "amount": 5500.00,
+  "description": "Updated August salary"
+}
+
+###
+
+### Delete Record [Admin only] (soft delete)
+DELETE {{baseUrl}}/api/records/{{recordId}}
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Get Deleted Record — expect 404
+GET {{baseUrl}}/api/records/{{recordId}}
+Authorization: Bearer {{viewerToken}}
+
+###############################################################################
+# DASHBOARD
+###############################################################################
+
+### Summary — total income, expenses, balance [Analyst, Admin]
+GET {{baseUrl}}/api/dashboard/summary
+Authorization: Bearer {{analystToken}}
+
+###
+
+### Summary — Viewer should get 403
+GET {{baseUrl}}/api/dashboard/summary
+Authorization: Bearer {{viewerToken}}
+
+###
+
+### Category Summary [Analyst, Admin]
+GET {{baseUrl}}/api/dashboard/category-summary
+Authorization: Bearer {{analystToken}}
+
+###
+
+### Trends — last 6 months (default) [Analyst, Admin]
+GET {{baseUrl}}/api/dashboard/trends
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Trends — last 12 months
+GET {{baseUrl}}/api/dashboard/trends?months=12
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Recent Records [Any auth]
+GET {{baseUrl}}/api/dashboard/recent
+Authorization: Bearer {{viewerToken}}
+
+###
+
+### Recent Records — custom limit
+GET {{baseUrl}}/api/dashboard/recent?limit=5
+Authorization: Bearer {{viewerToken}}
+
+###############################################################################
+# EDGE CASES / VALIDATION
+###############################################################################
+
+### Invalid UUID — expect 400
+GET {{baseUrl}}/api/records/not-a-valid-uuid
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Missing auth header — expect 401
+GET {{baseUrl}}/api/users/me
+
+###
+
+### Malformed JSON body — expect 400
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "admin@test.com", "password":
+
+###
+
+### Validation error — weak password
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "weak@example.com",
+  "password": "weak",
+  "name": "Weak Password User"
+}
