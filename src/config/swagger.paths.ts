@@ -47,6 +47,7 @@ export const apiPaths: Record<string, any> = {
                 type: 'object',
                 properties: {
                   success: { type: 'boolean', example: true },
+                  message: { type: 'string', example: 'User registered successfully' },
                   data: {
                     type: 'object',
                     properties: {
@@ -100,6 +101,7 @@ export const apiPaths: Record<string, any> = {
                 type: 'object',
                 properties: {
                   success: { type: 'boolean', example: true },
+                  message: { type: 'string', example: 'Login successful' },
                   data: {
                     type: 'object',
                     properties: {
