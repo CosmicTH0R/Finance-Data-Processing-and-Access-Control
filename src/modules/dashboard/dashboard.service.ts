@@ -55,3 +55,38 @@ export const getCategoryBreakdown = async () => {
     })),
   };
 };
+
+export const getMonthlyTrends = async (months = 6) => {
+  // Clamp between 1 and 24 to prevent abuse
+  const clampedMonths = Math.min(Math.max(months, 1), 24);
+
+  const rows = await prisma.$queryRaw<
+    Array<{ month: string; income: Prisma.Decimal; expenses: Prisma.Decimal }>
+  >(
+    Prisma.sql`
+      SELECT
+        TO_CHAR(date, 'YYYY-MM') AS month,
+        SUM(CASE WHEN type = 'INCOME'  THEN amount ELSE 0 END) AS income,
+        SUM(CASE WHEN type = 'EXPENSE' THEN amount ELSE 0 END) AS expenses
+      FROM "FinancialRecord"
+      WHERE
+        "isDeleted" = false
+        AND date >= DATE_TRUNC('month', NOW() - (${clampedMonths - 1} * INTERVAL '1 month'))
+      GROUP BY TO_CHAR(date, 'YYYY-MM')
+      ORDER BY month ASC
+    `,
+  );
+
+  return {
+    trends: rows.map((r) => {
+      const income = Number(r.income);
+      const expenses = Number(r.expenses);
+      return {
+        month: r.month,
+        income,
+        expenses,
+        net: income - expenses,
+      };
+    }),
+  };
+};

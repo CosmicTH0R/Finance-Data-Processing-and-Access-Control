@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { auth } from '../../middleware/auth';
 import { authorize } from '../../middleware/rbac';
-import { getFinancialSummaryController, getCategoryBreakdownController } from './dashboard.controller';
+import { getFinancialSummaryController, getCategoryBreakdownController, getMonthlyTrendsController } from './dashboard.controller';
 
 const router = Router();
 
@@ -21,5 +21,12 @@ router.get('/summary', authorize('ANALYST', 'ADMIN'), getFinancialSummaryControl
  * Returns: categories[{ category, type, total, count }]
  */
 router.get('/category-summary', authorize('ANALYST', 'ADMIN'), getCategoryBreakdownController);
+
+/**
+ * GET /api/dashboard/trends?months=6
+ * Analyst + Admin — monthly income/expense/net for last N months (default 6, max 24)
+ * Returns: trends[{ month, income, expenses, net }]
+ */
+router.get('/trends', authorize('ANALYST', 'ADMIN'), getMonthlyTrendsController);
 
 export default router;
