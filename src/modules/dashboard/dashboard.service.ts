@@ -1,4 +1,5 @@
 import { prisma } from '../../config/database';
+import { Prisma } from '@prisma/client';
 
 export const getFinancialSummary = async () => {
   const [incomeAgg, expenseAgg, recordCount] = await prisma.$transaction([
@@ -24,5 +25,33 @@ export const getFinancialSummary = async () => {
     totalExpenses,
     netBalance,
     recordCount,
+  };
+};
+
+export const getCategoryBreakdown = async () => {
+  // Use raw SQL for GROUP BY category + type — Prisma groupBy doesn't aggregate across two columns cleanly
+  const rows = await prisma.$queryRaw<
+    Array<{ category: string; type: string; total: Prisma.Decimal; count: bigint }>
+  >(
+    Prisma.sql`
+      SELECT
+        category,
+        type,
+        SUM(amount)   AS total,
+        COUNT(*)::bigint AS count
+      FROM "FinancialRecord"
+      WHERE "isDeleted" = false
+      GROUP BY category, type
+      ORDER BY type, total DESC
+    `,
+  );
+
+  return {
+    categories: rows.map((r) => ({
+      category: r.category,
+      type: r.type,
+      total: Number(r.total),
+      count: Number(r.count),
+    })),
   };
 };
