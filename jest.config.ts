@@ -6,10 +6,12 @@ const config: Config = {
   roots: ['<rootDir>/tests'],
   testMatch: ['**/*.test.ts'],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
   },
   moduleFileExtensions: ['ts', 'js', 'json'],
   clearMocks: true,
+  verbose: true,
+  testTimeout: 30000,
 };
 
 export default config;
