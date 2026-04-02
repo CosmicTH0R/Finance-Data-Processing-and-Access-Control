@@ -63,3 +63,13 @@ export const listRecordsQuerySchema = z.object({
 export type CreateRecordInput = z.infer<typeof createRecordSchema>;
 export type UpdateRecordInput = z.infer<typeof updateRecordSchema>;
 export type ListRecordsQuery = z.infer<typeof listRecordsQuerySchema>;
+
+export const exportRecordsQuerySchema = z.object({
+  format: z.enum(['csv']).default('csv'),
+  type: z.enum(['INCOME', 'EXPENSE']).optional(),
+  category: z.string().trim().optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+});
+
+export type ExportRecordsQuery = z.infer<typeof exportRecordsQuerySchema>;
