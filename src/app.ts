@@ -1,8 +1,10 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import swaggerUi from 'swagger-ui-express';
 import { errorHandler } from './middleware/errorHandler';
 import { apiRateLimiter } from './middleware/rateLimiter';
+import { swaggerSpec } from './config/swagger';
 import { env } from './config/env';
 import authRoutes from './modules/auth/auth.routes';
 import userRoutes from './modules/users/user.routes';
@@ -31,6 +33,16 @@ app.get('/health', async (_req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
     },
   });
+});
+
+// API docs — available in all environments
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'Finance Dashboard API',
+  swaggerOptions: { persistAuthorization: true },
+}));
+app.get('/api-docs.json', (_req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
 });
 
 // API routes
