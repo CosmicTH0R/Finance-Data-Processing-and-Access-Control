@@ -6,6 +6,7 @@ import { env } from './config/env';
 import authRoutes from './modules/auth/auth.routes';
 import userRoutes from './modules/users/user.routes';
 import recordRoutes from './modules/records/record.routes';
+import dashboardRoutes from './modules/dashboard/dashboard.routes';
 
 const app: Application = express();
 
@@ -34,7 +35,7 @@ app.get('/health', async (_req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/records', recordRoutes);
-// app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
