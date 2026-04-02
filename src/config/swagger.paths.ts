@@ -6,8 +6,7 @@
  *   https://swagger.io/specification/#paths-object
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const apiPaths: Record<string, any> = {
+export const apiPaths: Record<string, Record<string, unknown>> = {
   // ─── Auth ──────────────────────────────────────────────────────────────────
 
   '/auth/register': {

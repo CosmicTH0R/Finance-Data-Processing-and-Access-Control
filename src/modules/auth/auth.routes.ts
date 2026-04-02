@@ -3,7 +3,6 @@ import { register, login } from './auth.controller';
 import { validate } from '../../middleware/validate';
 import { registerSchema, loginSchema } from './auth.schema';
 import { authRateLimiter } from '../../middleware/rateLimiter';
-import { z } from 'zod';
 
 const router = Router();
 
