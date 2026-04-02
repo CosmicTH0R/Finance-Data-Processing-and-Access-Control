@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { auth } from '../../middleware/auth';
 import { authorize } from '../../middleware/rbac';
-import { getFinancialSummaryController } from './dashboard.controller';
+import { getFinancialSummaryController, getCategoryBreakdownController } from './dashboard.controller';
 
 const router = Router();
 
@@ -14,5 +14,12 @@ router.use(auth);
  * Returns: totalIncome, totalExpenses, netBalance, recordCount
  */
 router.get('/summary', authorize('ANALYST', 'ADMIN'), getFinancialSummaryController);
+
+/**
+ * GET /api/dashboard/category-summary
+ * Analyst + Admin — totals grouped by category and type
+ * Returns: categories[{ category, type, total, count }]
+ */
+router.get('/category-summary', authorize('ANALYST', 'ADMIN'), getCategoryBreakdownController);
 
 export default router;
