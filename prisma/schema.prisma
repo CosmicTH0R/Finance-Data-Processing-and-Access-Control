@@ -56,4 +56,5 @@ model FinancialRecord {
   @@index([date])
   @@index([userId])
   @@index([isDeleted])
+  @@index([isDeleted, date])
 }
