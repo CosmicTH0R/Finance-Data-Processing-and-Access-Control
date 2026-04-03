@@ -339,6 +339,21 @@ Most recent N financial records ordered by date descending.
 
 ---
 
+## Health
+
+### GET /health
+Returns server status. Use this to verify the API is running (useful after a cold-start on the free tier).
+
+**Response `200`:**
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-04-03T14:30:00.000Z"
+}
+```
+
+---
+
 ## Error Codes Reference
 
 | HTTP | Code | Cause |
