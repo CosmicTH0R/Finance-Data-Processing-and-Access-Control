@@ -44,32 +44,52 @@ export const updateRecordSchema = z
     message: 'At least one field must be provided',
   });
 
-export const listRecordsQuerySchema = z.object({
-  type: z.enum(['INCOME', 'EXPENSE']).optional(),
-  category: z.string().trim().optional(),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
-  page: z.string().regex(/^\d+$/).transform(Number).default(1),
-  limit: z
-    .string()
-    .regex(/^\d+$/)
-    .transform(Number)
-    .refine((n) => n <= 100, { message: 'Limit cannot exceed 100' })
-    .default(20),
-  sortBy: z.enum(['date', 'amount', 'createdAt']).default('date'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc'),
-});
+export const listRecordsQuerySchema = z
+  .object({
+    type: z.enum(['INCOME', 'EXPENSE']).optional(),
+    category: z.string().trim().optional(),
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+    page: z.string().regex(/^\d+$/).transform(Number).default(1),
+    limit: z
+      .string()
+      .regex(/^\d+$/)
+      .transform(Number)
+      .refine((n) => n <= 100, { message: 'Limit cannot exceed 100' })
+      .default(20),
+    sortBy: z.enum(['date', 'amount', 'createdAt']).default('date'),
+    sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  })
+  .refine(
+    (data) => {
+      if (data.startDate && data.endDate) {
+        return new Date(data.endDate) >= new Date(data.startDate);
+      }
+      return true;
+    },
+    { message: 'endDate must be greater than or equal to startDate', path: ['endDate'] },
+  );
 
 export type CreateRecordInput = z.infer<typeof createRecordSchema>;
 export type UpdateRecordInput = z.infer<typeof updateRecordSchema>;
 export type ListRecordsQuery = z.infer<typeof listRecordsQuerySchema>;
 
-export const exportRecordsQuerySchema = z.object({
-  format: z.enum(['csv']).default('csv'),
-  type: z.enum(['INCOME', 'EXPENSE']).optional(),
-  category: z.string().trim().optional(),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
-});
+export const exportRecordsQuerySchema = z
+  .object({
+    format: z.enum(['csv']).default('csv'),
+    type: z.enum(['INCOME', 'EXPENSE']).optional(),
+    category: z.string().trim().optional(),
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.startDate && data.endDate) {
+        return new Date(data.endDate) >= new Date(data.startDate);
+      }
+      return true;
+    },
+    { message: 'endDate must be greater than or equal to startDate', path: ['endDate'] },
+  );
 
 export type ExportRecordsQuery = z.infer<typeof exportRecordsQuerySchema>;
