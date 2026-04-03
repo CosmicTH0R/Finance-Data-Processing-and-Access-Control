@@ -68,7 +68,7 @@ finance-dashboard/
     ├── rbac.test.ts           # 8 RBAC permission matrix tests
     ├── records.test.ts        # 13 records CRUD + export + date-range validation tests
     ├── dashboard.test.ts      # 5 dashboard aggregation tests
-    ├── user.test.ts           # 17 user management tests (all 5 endpoints)
+    ├── user.test.ts           # 15 user management tests (all 5 endpoints)
     └── helpers/setup.ts       # createTestUser, createTestRecord, deleteUsers
 ```
 
@@ -211,7 +211,9 @@ After running `npm run db:seed`, the following users are available:
 | `POST /auth/login` | ✅ | ✅ | ✅ |
 | `GET /users/me` | ✅ | ✅ | ✅ |
 | `GET /users` | ❌ | ❌ | ✅ |
+| `GET /users/:id` | ❌ | ❌ | ✅ |
 | `PATCH /users/:id` | ❌ | ❌ | ✅ |
+| `DELETE /users/:id` | ❌ | ❌ | ✅ |
 | `POST /records` | ❌ | ❌ | ✅ |
 | `GET /records` | ✅ | ✅ | ✅ |
 | `GET /records/export` | ❌ | ❌ | ✅ |
