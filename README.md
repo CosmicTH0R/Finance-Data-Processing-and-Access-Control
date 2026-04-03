@@ -4,6 +4,19 @@ A production-ready REST API for financial data management with role-based access
 
 ---
 
+## Live Deployment
+
+| | URL |
+|---|---|
+| **API Base URL** | https://finance-data-processing-and-access-y6ya.onrender.com |
+| **Swagger UI** | https://finance-data-processing-and-access-y6ya.onrender.com/api-docs/ |
+| **OpenAPI JSON** | https://finance-data-processing-and-access-y6ya.onrender.com/api-docs.json |
+| **Health Check** | https://finance-data-processing-and-access-y6ya.onrender.com/health |
+
+> **Note:** The API is deployed on Render's free tier. The first request after inactivity may take 30–60 seconds to cold-start. Subsequent requests are fast.
+
+---
+
 ## Tech Stack
 
 | Layer | Choice | Why |
@@ -32,28 +45,34 @@ finance-dashboard/
 │   ├── app.ts                 # Express app, middleware, route mounting
 │   ├── config/
 │   │   ├── env.ts             # Zod-validated environment variables
-│   │   └── database.ts        # Prisma singleton
+│   │   ├── database.ts        # Prisma singleton
+│   │   ├── swagger.ts         # OpenAPI spec config + swagger-ui-express setup
+│   │   └── swagger.paths.ts   # All OpenAPI path definitions (18 endpoints)
 │   ├── middleware/
 │   │   ├── auth.ts            # JWT verification → req.user
 │   │   ├── rbac.ts            # authorize(...roles) factory
 │   │   ├── validate.ts        # Zod schema validation middleware
+│   │   ├── rateLimiter.ts     # Dual-layer rate limiting (auth: 15/5min, api: 100/5min)
 │   │   └── errorHandler.ts    # Global error handler (AppError, ZodError, Prisma)
 │   ├── modules/
 │   │   ├── auth/              # POST /register, POST /login
 │   │   ├── users/             # User CRUD — admin only
-│   │   ├── records/           # Financial records CRUD with filters + pagination
+│   │   ├── records/           # Financial records CRUD with filters + pagination + CSV export
 │   │   └── dashboard/         # Aggregation endpoints (summary, categories, trends, recent)
 │   └── utils/
 │       ├── AppError.ts        # Operational error class
 │       ├── apiResponse.ts     # Consistent { success, data/error } response helpers
 │       └── common.schema.ts   # Shared Zod schemas (UUID param validation)
 └── tests/
-    ├── auth.test.ts           # 8 auth integration tests
+    ├── auth.test.ts           # 8 auth integration tests (register + login flows)
     ├── rbac.test.ts           # 8 RBAC permission matrix tests
-    ├── records.test.ts        # 10 records CRUD tests
+    ├── records.test.ts        # 13 records CRUD + export + date-range validation tests
     ├── dashboard.test.ts      # 5 dashboard aggregation tests
+    ├── user.test.ts           # 17 user management tests (all 5 endpoints)
     └── helpers/setup.ts       # createTestUser, createTestRecord, deleteUsers
 ```
+
+**Total: 49 integration tests across 5 suites — all passing.**
 
 ---
 
@@ -177,8 +196,10 @@ After running `npm run db:seed`, the following users are available:
 ### API Documentation
 | URL | Description |
 |---|---|
-| `http://localhost:3000/api-docs` | Interactive Swagger UI |
-| `http://localhost:3000/api-docs.json` | Raw OpenAPI 3.0 spec (JSON) |
+| `http://localhost:3000/api-docs` | Interactive Swagger UI (local) |
+| `http://localhost:3000/api-docs.json` | Raw OpenAPI 3.0 spec (local) |
+| https://finance-data-processing-and-access-y6ya.onrender.com/api-docs/ | Interactive Swagger UI (deployed) |
+| https://finance-data-processing-and-access-y6ya.onrender.com/api-docs.json | Raw OpenAPI 3.0 spec (deployed) |
 
 ---
 

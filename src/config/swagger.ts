@@ -15,7 +15,9 @@ const options: swaggerJsdoc.Options = {
         '- Viewer: `viewer@test.com` / `Viewer@123`\n\n' +
         'Login via `POST /api/auth/login`, then click **Authorize** and paste the returned token.',
     },
-    servers: [{ url: '/api', description: 'API base path' }],
+    servers: [
+      { url: '/api', description: 'Current server (local or deployed)' },
+    ],
     components: {
       securitySchemes: {
         bearerAuth: {
