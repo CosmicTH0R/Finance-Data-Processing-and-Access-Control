@@ -176,4 +176,33 @@ describe('Financial Records CRUD', () => {
     // Hard-delete the soft-deleted record for cleanup
     await prisma.financialRecord.delete({ where: { id: toDelete.id } });
   });
+
+  // ── Export Records (CSV) ───────────────────────────────────────────────────
+
+  it('Admin exports records as CSV (200, text/csv)', async () => {
+    const res = await request(app)
+      .get('/api/records/export')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/text\/csv/);
+    expect(res.text).toContain('id,amount,type,category');
+  });
+
+  it('Viewer cannot export records (403)', async () => {
+    const res = await request(app)
+      .get('/api/records/export')
+      .set('Authorization', `Bearer ${viewerToken}`);
+
+    expect(res.status).toBe(403);
+  });
+
+  it('returns 400 VALIDATION_ERROR when endDate is before startDate', async () => {
+    const res = await request(app)
+      .get('/api/records?startDate=2025-06-01T00:00:00.000Z&endDate=2025-01-01T00:00:00.000Z')
+      .set('Authorization', `Bearer ${viewerToken}`);
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
 });

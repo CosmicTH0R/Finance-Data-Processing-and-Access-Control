@@ -10,7 +10,12 @@ export const updateUserSchema = z.object({
 
 export const listUsersQuerySchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).default(1),
-  limit: z.string().regex(/^\d+$/).transform(Number).default(20),
+  limit: z
+    .string()
+    .regex(/^\d+$/)
+    .transform(Number)
+    .refine((n) => n <= 100, { message: 'Limit cannot exceed 100' })
+    .default(20),
   role: z.enum(['VIEWER', 'ANALYST', 'ADMIN']).optional(),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
 });
