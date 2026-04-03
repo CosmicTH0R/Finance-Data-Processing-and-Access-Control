@@ -1,5 +1,30 @@
 # API Documentation
 
+## Base URLs
+
+| Environment | URL |
+|---|---|
+| **Deployed (Render)** | https://finance-data-processing-and-access-y6ya.onrender.com |
+| **Local development** | `http://localhost:3000` |
+
+**Interactive Swagger UI (deployed):** https://finance-data-processing-and-access-y6ya.onrender.com/api-docs/
+
+> The deployed API is on Render's free tier. The first request after inactivity may take 30–60 seconds to cold-start.
+
+---
+
+## Test Credentials
+
+These users are pre-seeded and available on the deployed API and after running `npm run db:seed` locally:
+
+| Role | Email | Password |
+|---|---|---|
+| **Admin** | `admin@test.com` | `Admin@123` |
+| **Analyst** | `analyst@test.com` | `Analyst@123` |
+| **Viewer** | `viewer@test.com` | `Viewer@123` |
+
+---
+
 All responses follow the same uniform shape:
 
 ```json
